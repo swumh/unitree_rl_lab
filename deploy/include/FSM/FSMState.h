@@ -91,12 +91,18 @@ public:
         auto& joy = lowstate->joystick;
         std::string key = keyboard->key();
         
+        // Configuration constants
+        static constexpr auto KEY_TIMEOUT_MS = std::chrono::milliseconds(300);
+        static constexpr float MAX_AXIS_VALUE = 1.0f;
+        static constexpr float DIAGONAL_NORMALIZATION = 0.707f; // 1/sqrt(2)
+        
         // Track pressed keys with timeout
         static std::set<std::string> pressed_keys;
         static std::map<std::string, std::chrono::steady_clock::time_point> key_press_times;
         auto now = std::chrono::steady_clock::now();
         
         if(!key.empty()) {
+            // Normalize key to lowercase
             std::string normalized_key = key;
             if(normalized_key.length() == 1) {
                 normalized_key[0] = static_cast<char>(std::tolower(static_cast<unsigned char>(normalized_key[0])));
@@ -104,10 +110,9 @@ public:
             pressed_keys.insert(normalized_key);
             key_press_times[normalized_key] = now;
         } else {
-            // Clear timed-out keys (300ms timeout)
-            auto timeout = std::chrono::milliseconds(300);
+            // Clear timed-out keys
             for(auto it = pressed_keys.begin(); it != pressed_keys.end();) {
-                if(now - key_press_times[*it] > timeout) {
+                if(now - key_press_times[*it] > KEY_TIMEOUT_MS) {
                     key_press_times.erase(*it);
                     it = pressed_keys.erase(it);
                 } else {
@@ -135,17 +140,16 @@ public:
 
         float lx_val = 0.0f;
         float ly_val = 0.0f;
-        const float MAX_VAL = 1.0f;
 
-        if(up) ly_val += MAX_VAL;
-        if(down) ly_val -= MAX_VAL;
-        if(left) lx_val -= MAX_VAL;
-        if(right) lx_val += MAX_VAL;
+        if(up) ly_val += MAX_AXIS_VALUE;
+        if(down) ly_val -= MAX_AXIS_VALUE;
+        if(left) lx_val -= MAX_AXIS_VALUE;
+        if(right) lx_val += MAX_AXIS_VALUE;
 
         // Normalize diagonal movement
         if(lx_val != 0.0f && ly_val != 0.0f) {
-            lx_val *= 0.707f; // 1/sqrt(2) for diagonal normalization
-            ly_val *= 0.707f;
+            lx_val *= DIAGONAL_NORMALIZATION;
+            ly_val *= DIAGONAL_NORMALIZATION;
         }
 
         // Set axis values and pressed flags
