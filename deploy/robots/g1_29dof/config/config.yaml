@@ -17,7 +17,7 @@ FSM:
 
   Passive:
     transitions: 
-      FixStand: LT + up.on_pressed
+      FixStand: LT + A.on_pressed
     mode: [
       1,1,1,1,1,1,
       1,1,1,1,1,1,
@@ -63,8 +63,8 @@ FSM:
   Velocity:
     transitions: 
       Passive: LT + B.on_pressed
-      Mimic_Dance_102: LT(2s) + down.on_pressed
-      Mimic_Gangnam_Style: LT(2s) + left.on_pressed
+      Mimic_Dance_102: RT + B.on_pressed
+      Mimic_Gangnam_Style: RT + A.on_pressed
 
     policy_dir: config/policy/velocity
     # policy_dir: ../../../logs/rsl_rl/unitree_g1_29dof_velocity

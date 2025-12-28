@@ -48,8 +48,29 @@ int main(int argc, char** argv)
     auto fsm = std::make_unique<CtrlFSM>(param::config["FSM"]);
     fsm->start();
 
-    std::cout << "Press [L2 + Up] to enter FixStand mode.\n";
-    std::cout << "And then press [R1 + X] to start controlling the robot.\n";
+    std::cout << "Use keyboard to control the robot.\n";
+    std::cout << "W, A, S, D -> Direction buttons and left joystick (lx, ly)\n";
+    std::cout << "J -> A button, K -> B button, U -> X button, I -> Y button\n";
+    std::cout << "Q -> LB, E -> RB, Z -> LT, C -> RT\n";
+    std::cout << "Space -> Start, N -> Back, F -> F1, G -> F2\n";
+
+    std::cout << "state transition: ";
+    std::cout << "Passive -> FixStand -> Velocity to Mimic_Dance_102 \n";
+    std::cout << "                   OR  Velocity to Mimic_Gangnam_Style\n";
+    std::cout << "tips:click mujoco window and use 7 8 to hang up or put down the robot.\n";
+    std::cout << "and use 9 to enable or disable the elastic_band\n";
+    std::cout << "and click this terminal and press keys to control the robot based on the following tips.\n";
+
+    std::cout << "GUIDE: firstly click this terminal, let robot convert to fixstand mode and then to velocity mode.secondly click mujoco, press 8 to put down the robot, make sure that robot is standing stably.thirdly click this terminal, press keys to control the robot based on the following tips.\n";
+
+    std::cout << "\n==================first==========================\n";
+    std::cout << "Press [Z + J] to enter FixStand mode.\n";
+    std::cout << "==================second==========================\n";
+    std::cout << "And then press [E + U] to start controlling the robot(Velocity mode).\n";
+    std::cout << "\n";
+    std::cout << "==================third==========================\n";
+    std::cout << "Press [C + K] to enter Dance 102 mode.\n Or Press [C + J] to enter Gangnam Style mode.\n";
+
 
     while (true)
     {
