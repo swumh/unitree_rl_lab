@@ -5,12 +5,15 @@
 #include "FSM/BaseState.h"
 #include "isaaclab/devices/keyboard/keyboard.h"
 #include "unitree_joystick_dsl.hpp"
+#include <spdlog/spdlog.h>
 #include <chrono>
 #include <set>
 #include <map>
 #include <cctype>
 #include <cstring>
 #include <cstddef>
+#include <cmath>
+#include <algorithm>
 
 class FSMState : public BaseState
 {
@@ -94,19 +97,19 @@ public:
         // Configuration constants
         static constexpr auto KEY_TIMEOUT_MS = std::chrono::milliseconds(300);
         static constexpr float MAX_AXIS_VALUE = 1.0f;
-        static constexpr float DIAGONAL_NORMALIZATION = 0.707f; // 1/sqrt(2)
+        static constexpr float DIAGONAL_NORMALIZATION = M_SQRT1_2; // 1/sqrt(2) ≈ 0.707
         
-        // Track pressed keys with timeout
-        static std::set<std::string> pressed_keys;
-        static std::map<std::string, std::chrono::steady_clock::time_point> key_press_times;
+        // Track pressed keys with timeout (thread-local for thread-safety)
+        thread_local static std::set<std::string> pressed_keys;
+        thread_local static std::map<std::string, std::chrono::steady_clock::time_point> key_press_times;
         auto now = std::chrono::steady_clock::now();
         
         if(!key.empty()) {
             // Normalize key to lowercase
             std::string normalized_key = key;
-            if(normalized_key.length() == 1) {
-                normalized_key[0] = static_cast<char>(std::tolower(static_cast<unsigned char>(normalized_key[0])));
-            }
+            std::transform(normalized_key.begin(), normalized_key.end(), 
+                         normalized_key.begin(),
+                         [](unsigned char c){ return std::tolower(c); });
             pressed_keys.insert(normalized_key);
             key_press_times[normalized_key] = now;
         } else {
@@ -177,9 +180,9 @@ public:
         updateBtn(joy.RT, isKeyPressed("c"));
         updateBtn(joy.start, isKeyPressed(" ") || isKeyPressed("space"));
         
-        // Optional: Debug logging
+        // Optional: Debug logging (thread-local counter for thread-safety)
         if (lx_val != 0.0f || ly_val != 0.0f) {
-            static int log_cnt = 0;
+            thread_local static int log_cnt = 0;
             if (log_cnt++ % 20 == 0) {
                 spdlog::debug("Keyboard->Joystick: LX={:.2f}, LY={:.2f}", lx_val, ly_val);
             }
